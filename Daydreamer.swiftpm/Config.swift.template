@@ -1,0 +1,5 @@
+struct Config {
+    // Create a personal access token by opening Figma > Help and account > Account settings
+    // and scrolling to Personal access tokens.
+    let figmaToken: String = "<fill me in>"
+}

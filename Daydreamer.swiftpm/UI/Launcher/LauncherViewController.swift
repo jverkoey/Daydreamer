@@ -24,6 +24,8 @@ final class LauncherViewController: UIViewController {
         subtitleLabel.lineBreakMode = .byWordWrapping
         view.addSubview(subtitleLabel)
         
+        let urlField = UITextField()
+        
         let layoutGuide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: layoutGuide.leadingAnchor, multiplier: 4),
