@@ -3,6 +3,7 @@ import UIKit
 final class LauncherViewController: UIViewController {
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
+    private var openButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,7 +25,7 @@ final class LauncherViewController: UIViewController {
         subtitleLabel.lineBreakMode = .byWordWrapping
         view.addSubview(subtitleLabel)
         
-        let wellFrame = CGRect(origin: .zero, size: CGSize(width: 100, height: 100))
+        let wellFrame = CGRect(origin: .zero, size: CGSize(width: 100, height: 64))
         let urlFieldWell = UIView(frame: wellFrame)
         urlFieldWell.translatesAutoresizingMaskIntoConstraints = false
         urlFieldWell.layer.borderColor = UIColor.secondarySystemBackground.cgColor
@@ -33,25 +34,40 @@ final class LauncherViewController: UIViewController {
         urlFieldWell.layer.cornerRadius = 32
         urlFieldWell.clipsToBounds = true
         
-        let urlField = UITextField(frame: wellFrame.insetBy(dx: 32, dy: 32))
+        let urlField = UITextField(frame: wellFrame.insetBy(dx: 32, dy: 0))
         urlField.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        urlField.placeholder = "Paste a Figma file url or file id"
+        urlField.placeholder = "Figma file url or file id"
         urlField.textAlignment = .left
         urlField.borderStyle = .none
         urlField.font = UIFont(name: "Avenir Next Medium", size: 24)!
         urlField.adjustsFontSizeToFitWidth = true
         urlField.textColor = .label
+        urlField.addTarget(self, action: #selector(checkUrl(_:)), for: .allEditingEvents)
         urlFieldWell.addSubview(urlField)
         view.addSubview(urlFieldWell)
+        
+        openButton = UIButton(configuration: .filled(), primaryAction: UIAction(title: "Open", handler: { action in
+            print("Tapped")
+        }))
+        openButton.translatesAutoresizingMaskIntoConstraints = false
+        openButton.isEnabled = false
+        openButton.isPointerInteractionEnabled = true
+        view.addSubview(openButton)
         
         let layoutGuide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             urlFieldWell.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            openButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
             urlFieldWell.centerYAnchor.constraint(lessThanOrEqualTo: view.centerYAnchor),
-            urlFieldWell.bottomAnchor.constraint(lessThanOrEqualTo: view.keyboardLayoutGuide.topAnchor, constant: -32),
+            openButton.topAnchor.constraint(equalToSystemSpacingBelow: urlFieldWell.bottomAnchor, multiplier: 1),
+            
+            // Shift the input elements up when the keyboard appears.
+            openButton.bottomAnchor.constraint(lessThanOrEqualTo: view.keyboardLayoutGuide.topAnchor, constant: -32),
+            
             urlFieldWell.leadingAnchor.constraint(equalToSystemSpacingAfter: layoutGuide.leadingAnchor, multiplier: 4),
             layoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: urlFieldWell.trailingAnchor, multiplier: 4),
-            urlFieldWell.heightAnchor.constraint(equalToConstant: 100),
+            urlFieldWell.heightAnchor.constraint(equalToConstant: wellFrame.height),
             
             titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: layoutGuide.leadingAnchor, multiplier: 4),
             layoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: titleLabel.trailingAnchor, multiplier: 4),
@@ -92,3 +108,15 @@ final class LauncherViewController: UIViewController {
         print(size)
     }
 }
+
+extension LauncherViewController {
+    @objc func checkUrl(_ sender: UITextField) {
+        guard let text = sender.text, !text.isEmpty else {
+            openButton.isEnabled = false
+            return
+        }
+        openButton.isEnabled = true
+    }
+}
+
+// fofjjffjfjfjfjfjfjfjfjfjfjr
