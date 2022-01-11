@@ -8,12 +8,15 @@ class MainSceneDelegate: NSObject, UIWindowSceneDelegate {
         
         if let windowScene = scene as? UIWindowScene {
             window = UIWindow(windowScene: windowScene)
-            
-            let vc = FigmaFileViewController()
-            
-            window?.rootViewController = vc
+//            
+//            let rootController = UISplitViewController(style: .tripleColumn)
+//            rootController.setViewController(CanvasViewController(), for: .secondary)
+//            
+            window?.rootViewController = LauncherViewController()
             
             window?.makeKeyAndVisible()
         }
     }
 }
+
+// foo
