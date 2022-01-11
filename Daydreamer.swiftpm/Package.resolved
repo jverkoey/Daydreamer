@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "FigmaKit",
+        "repositoryURL": "https://github.com/jverkoey/FigmaKit",
+        "state": {
+          "branch": null,
+          "revision": "e4d644b404c762f00c612dc78c44dcd818fa2509",
+          "version": "0.0.11"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
