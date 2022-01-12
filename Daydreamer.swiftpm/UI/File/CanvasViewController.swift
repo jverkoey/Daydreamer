@@ -6,7 +6,9 @@ final class CanvasViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         let gearImage = UIImage(systemName: "gear")
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: gearImage, style: .plain, target: self, action: #selector(showSettings))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: gearImage, style: .plain, target: self, action: #selector(showSettings))
+        ]
     }
 
     required init?(coder: NSCoder) {
@@ -17,6 +19,13 @@ final class CanvasViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
+        
+        let label = UILabel()
+        label.text = "Canvas"
+        label.textColor = .label
+        label.sizeToFit()
+        label.center = view.center
+        view.addSubview(label)
     }
     
     @objc func showSettings() {
