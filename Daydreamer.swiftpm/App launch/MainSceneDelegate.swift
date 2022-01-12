@@ -13,6 +13,7 @@ class MainSceneDelegate: NSObject, UIWindowSceneDelegate {
 //            rootController.setViewController(CanvasViewController(), for: .secondary)
 //            
             let launcher = LauncherViewController()
+            launcher.figmaID = UserDefaults.standard.string(forKey: UserDefaultKey.figmaFileID.rawValue)
             launcher.delegate = self
             window?.rootViewController = launcher
             
@@ -23,8 +24,9 @@ class MainSceneDelegate: NSObject, UIWindowSceneDelegate {
 
 extension MainSceneDelegate: LauncherViewControllerDelegate {
     func launcher(_ launcher: LauncherViewController, open figmaID: String) {
-        print(figmaID)
+        UserDefaults.standard.set(figmaID, forKey: UserDefaultKey.figmaFileID.rawValue)
+        
+        // TODO: Present the file UI.
     }
 }
 
-// fof

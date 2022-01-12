@@ -5,6 +5,14 @@ protocol LauncherViewControllerDelegate: AnyObject {
 }
 
 final class LauncherViewController: UIViewController {
+    var figmaID: String? = nil {
+        didSet {
+            if isViewLoaded {
+                urlField.text = figmaID
+            }
+        }
+    }
+    
     weak var delegate: LauncherViewControllerDelegate?
     
     private let titleLabel = UILabel()
@@ -46,6 +54,7 @@ final class LauncherViewController: UIViewController {
         urlField = UITextField(frame: wellFrame.insetBy(dx: 32, dy: 0))
         urlField.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         urlField.placeholder = "Figma file url or file id"
+        urlField.text = figmaID
         urlField.textAlignment = .left
         urlField.borderStyle = .none
         urlField.font = UIFont(name: "Avenir Next Medium", size: 24)!
