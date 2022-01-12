@@ -12,11 +12,19 @@ class MainSceneDelegate: NSObject, UIWindowSceneDelegate {
 //            let rootController = UISplitViewController(style: .tripleColumn)
 //            rootController.setViewController(CanvasViewController(), for: .secondary)
 //            
-            window?.rootViewController = LauncherViewController()
+            let launcher = LauncherViewController()
+            launcher.delegate = self
+            window?.rootViewController = launcher
             
             window?.makeKeyAndVisible()
         }
     }
 }
 
-// foo
+extension MainSceneDelegate: LauncherViewControllerDelegate {
+    func launcher(_ launcher: LauncherViewController, open figmaID: String) {
+        print(figmaID)
+    }
+}
+
+// fof
