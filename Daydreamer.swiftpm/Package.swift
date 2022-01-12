@@ -33,7 +33,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/jverkoey/FigmaKit", "0.0.11"..<"1.0.0")
+        .package(url: "https://github.com/jverkoey/FigmaKit", "0.0.16"..<"1.0.0")
     ],
     targets: [
         .executableTarget(

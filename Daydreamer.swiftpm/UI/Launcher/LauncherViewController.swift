@@ -124,6 +124,7 @@ final class LauncherViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        print("View will appear")
         updateFonts(withSize: view.bounds.size)
     }
     
@@ -239,4 +240,4 @@ extension String {
     }
 }
 
-// foffff
+// fofffffjjffjfjjf
