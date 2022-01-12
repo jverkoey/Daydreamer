@@ -51,6 +51,7 @@ final class LauncherViewController: UIViewController {
         urlFieldWell.layer.cornerRadius = 32
         urlFieldWell.clipsToBounds = true
         
+        let inputFont = UIFont(name: "Avenir Next Medium", size: 24)!
         urlField = UITextField(frame: wellFrame.insetBy(dx: 32, dy: 0))
         urlField.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         urlField.delegate = self
@@ -58,7 +59,7 @@ final class LauncherViewController: UIViewController {
         urlField.text = figmaID
         urlField.textAlignment = .left
         urlField.borderStyle = .none
-        urlField.font = UIFont(name: "Avenir Next Medium", size: 24)!
+        urlField.font = inputFont
         urlField.adjustsFontSizeToFitWidth = true
         urlField.textColor = .label
         urlFieldWell.addSubview(urlField)
@@ -67,6 +68,11 @@ final class LauncherViewController: UIViewController {
         var buttonConfig = UIButton.Configuration.filled()
         buttonConfig.cornerStyle = .capsule
         buttonConfig.buttonSize = .large
+        buttonConfig.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = inputFont
+            return outgoing
+        }
         openButton = UIButton(configuration: buttonConfig, primaryAction: UIAction(title: "Open", handler: { [weak self] action in
             self?.attemptToOpen()
         }))
@@ -139,7 +145,6 @@ final class LauncherViewController: UIViewController {
         } else {
             subtitleLabel.numberOfLines = 1
         }
-        print(size)
     }
 }
 
@@ -233,3 +238,5 @@ extension String {
         }
     }
 }
+
+// foffff
