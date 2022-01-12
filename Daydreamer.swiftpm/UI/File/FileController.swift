@@ -77,7 +77,7 @@ extension FileController {
             guard let self = self else {
                 return
             }
-            self.canvasVC.title = file.name
+            self.canvasVC.file = file
             self.file = file
         }
     }
