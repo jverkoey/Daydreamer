@@ -53,6 +53,7 @@ final class LauncherViewController: UIViewController {
         
         urlField = UITextField(frame: wellFrame.insetBy(dx: 32, dy: 0))
         urlField.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        urlField.delegate = self
         urlField.placeholder = "Figma file url or file id"
         urlField.text = figmaID
         urlField.textAlignment = .left
@@ -63,8 +64,11 @@ final class LauncherViewController: UIViewController {
         urlFieldWell.addSubview(urlField)
         view.addSubview(urlFieldWell)
         
-        openButton = UIButton(configuration: .filled(), primaryAction: UIAction(title: "Open", handler: { [weak self] action in
-            self?.tryToOpen()
+        var buttonConfig = UIButton.Configuration.filled()
+        buttonConfig.cornerStyle = .capsule
+        buttonConfig.buttonSize = .large
+        openButton = UIButton(configuration: buttonConfig, primaryAction: UIAction(title: "Open", handler: { [weak self] action in
+            self?.attemptToOpen()
         }))
         openButton.translatesAutoresizingMaskIntoConstraints = false
         openButton.isPointerInteractionEnabled = true
@@ -84,9 +88,6 @@ final class LauncherViewController: UIViewController {
             errorLabel.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor),
             errorLabel.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor),
             
-            urlFieldWell.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            openButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
             // Vertical positioning of the input fields.
             urlFieldWell.centerYAnchor.constraint(lessThanOrEqualTo: view.centerYAnchor),
             openButton.topAnchor.constraint(equalToSystemSpacingBelow: urlFieldWell.bottomAnchor, multiplier: 1),
@@ -98,8 +99,10 @@ final class LauncherViewController: UIViewController {
             // Shift the input elements up when the keyboard appears.
             openButton.bottomAnchor.constraint(lessThanOrEqualTo: view.keyboardLayoutGuide.topAnchor, constant: -32),
             
-            urlFieldWell.leadingAnchor.constraint(equalToSystemSpacingAfter: layoutGuide.leadingAnchor, multiplier: 4),
-            layoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: urlFieldWell.trailingAnchor, multiplier: 4),
+            openButton.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor),
+            openButton.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor),
+            urlFieldWell.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor),
+            urlFieldWell.trailingAnchor.constraint(equalTo: view.readableContentGuide.trailingAnchor),
             urlFieldWell.heightAnchor.constraint(equalToConstant: wellFrame.height),
             
             titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: layoutGuide.leadingAnchor, multiplier: 4),
@@ -140,6 +143,14 @@ final class LauncherViewController: UIViewController {
     }
 }
 
+extension LauncherViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        attemptToOpen()
+        textField.resignFirstResponder()
+        return false
+    }
+}
+
 extension LauncherViewController {
     private func shakeUrlField(withMessage message: String) {
         let animation = CASpringAnimation(keyPath: "position.x")
@@ -160,7 +171,7 @@ extension LauncherViewController {
         }
     }
     
-    @objc func tryToOpen() {
+    @objc func attemptToOpen() {
         guard let text = urlField.text, !text.isEmpty else {
             shakeUrlField(withMessage: "⚠️ Please provide a file URL or file id. ⚠️")
             return
@@ -189,8 +200,9 @@ extension LauncherViewController {
 
 private let errorExampleMessage = """
 You can get a file URL by opening a Figma file and clicking Share > Copy link.
+
 Example URL:
-https://www.figma.com/file/lUfHc6IcPjXVgVVVWjDgpx/Untitled?node-id=0%3A1
+https://www.figma.com/file/lUfHc6IcPjXVgVVVWjDgpx/Untitled
 """
 
 extension String {
