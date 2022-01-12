@@ -10,6 +10,8 @@ final class FileController {
         self.navVC = UINavigationController(rootViewController: canvasVC)
         
         canvasVC.title = "Loading..."
+        
+        load()
     }
     
     // In-memory structured representation of the Figma file.
@@ -18,7 +20,6 @@ final class FileController {
     // UI elements
     private let canvasVC: CanvasViewController
     private let navVC: UINavigationController
-    private weak var contextViewController: UIViewController? = nil
     
     // Loading the file
     private var fileTask: URLSessionDataTask?
@@ -31,7 +32,9 @@ final class FileController {
         var request = URLRequest(url: url)
         request.addValue(Config.figmaToken, forHTTPHeaderField: "X-FIGMA-TOKEN")
         if let response = cache.cachedResponse(for: request) {
-            fileDidDownload(data: response.data, response: response.response, error: nil)
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.fileDidLoad(data: response.data, response: response.response, error: nil)
+            }
         } else {
             // TODO: Always fetch, even if we can load from cache. This is being else'd out only to reduce excessive server load during development.
             let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
@@ -42,43 +45,27 @@ final class FileController {
                    let data = data {
                     self.cache.storeCachedResponse(CachedURLResponse(response: response, data: data), for: request)
                 }
-                self.fileDidDownload(data: data, response: response, error: error)
+                self.fileDidLoad(data: data, response: response, error: error)
             }
             self.fileTask = task
             task.resume()
         }
     }
     
-    func show(from contextViewController: UIViewController, animated: Bool) {
-        self.contextViewController = contextViewController
-        
-        load()
-        
-        let closeButtonImage = UIImage(systemName: "xmark")
-        canvasVC.navigationItem.hidesBackButton = true
-        canvasVC.navigationItem.leftItemsSupplementBackButton = true
-        canvasVC.navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: closeButtonImage,
-            style: .plain,
-            target: self,
-            action: #selector(closeFile)
-        )
-        
-        navVC.modalPresentationStyle = .fullScreen
-        contextViewController.present(navVC, animated: animated)
+    var closeItem: UIBarButtonItem? {
+        get { return canvasVC.navigationItem.leftBarButtonItem }
+        set { canvasVC.navigationItem.leftBarButtonItem = newValue }
     }
-}
-
-// MARK: - User actions
-extension FileController {
-    @objc private func closeFile() {
-        contextViewController?.dismiss(animated: true)
+    var viewController: UIViewController {
+        return navVC
     }
 }
 
 // MARK: - Loading files from network and disk
 extension FileController {
-    func fileDidDownload(data: Data?, response: URLResponse?, error: Error?) -> Void {
+    func fileDidLoad(data: Data?, response: URLResponse?, error: Error?) -> Void {
+        assert(!Thread.isMainThread, "This method is expected to be ran on a background thread to avoid locking the UI")
+        
         guard let data = data else { return }
         let decoder = JSONDecoder()
         guard let file = try? decoder.decode(FigmaKit.File.self, from: data) else {
@@ -95,5 +82,3 @@ extension FileController {
         }
     }
 }
-
-// foffjfjfjfjrfffjfjfjfjfjfjfjfj

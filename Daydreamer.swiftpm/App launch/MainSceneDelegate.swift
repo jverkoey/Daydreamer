@@ -20,19 +20,45 @@ class MainSceneDelegate: NSObject, UIWindowSceneDelegate {
             if let figmaID = launcher.figmaID, !figmaID.isEmpty {
                 let fileController = FileController(figmaID: figmaID)
                 self.fileController = fileController
-                fileController.show(from: window!.rootViewController!, animated: false)
+                
+                showFile(animated: false)
             }
         }
     }
 }
 
+// MARK: - User actions
+extension MainSceneDelegate {
+    @objc private func closeFile() {
+        window?.rootViewController?.dismiss(animated: true)
+        fileController = nil
+    }
+}
+
 extension MainSceneDelegate: LauncherViewControllerDelegate {
+    func showFile(animated: Bool) {
+        guard let fileController = fileController else {
+            return
+        }
+        let closeButtonImage = UIImage(systemName: "xmark")
+        fileController.closeItem = UIBarButtonItem(
+            image: closeButtonImage,
+            style: .plain,
+            target: self,
+            action: #selector(closeFile)
+        )
+        
+        fileController.viewController.modalPresentationStyle = .fullScreen
+        window!.rootViewController!.present(fileController.viewController, animated: animated)
+    }
+    
     func launcher(_ launcher: LauncherViewController, open figmaID: String) {
         UserDefaults.standard.set(figmaID, forKey: UserDefaultKey.figmaFileID.rawValue)
         let fileController = FileController(figmaID: figmaID)
         self.fileController = fileController
-        fileController.show(from: window!.rootViewController!, animated: true)
+        
+        showFile(animated: true)
     }
 }
 
-// fofffffffffffffffjfffffjffffjfjfffffffjffjfjfjff
+// fjfjfjfjfjfj

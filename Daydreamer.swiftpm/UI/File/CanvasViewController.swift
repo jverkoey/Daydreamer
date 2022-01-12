@@ -2,6 +2,8 @@ import UIKit
 import FigmaKit
 
 final class CanvasViewController: UIViewController {
+    var file: FigmaKit.File?
+    
     init() {
         super.init(nibName: nil, bundle: nil)
         
