@@ -125,6 +125,18 @@ extension CanvasViewController {
                     }
                 }
             }
+            view.layer.borderColor = nil
+            for strokePaint in vector.strokes {
+                switch strokePaint {
+                case let solid as FigmaKit.Paint.Solid:
+                    view.layer.borderColor = UIColor(figmaColor: solid.color).cgColor
+                default:
+                    break
+                }
+            }
+            if view.layer.borderColor != nil {
+                view.layer.borderWidth = vector.strokeWeight
+            }
             view.bounds = CGRect(origin: .zero, size: CGSize(figmaSize: vector.size))
             view.transform = CGAffineTransform(figmaTransform: vector.relativeTransform, size: vector.size)
         default:
@@ -244,4 +256,4 @@ extension CanvasViewController {
     }
 }
 
-// fjfjfjfjfjfjfjfjfjfjfjffjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfj
+// fjfjfjfjfjfjfjfjfjfjfjffjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjf
