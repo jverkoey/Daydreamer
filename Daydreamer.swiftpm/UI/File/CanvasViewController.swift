@@ -40,11 +40,21 @@ final class CanvasViewController: UIViewController {
         container.minimumZoomScale = 0.01
         container.maximumZoomScale = 10.0
         view.addSubview(container)
+        
+        let hover = UIPanGestureRecognizer(target: self, action: #selector(hovering(_:)))
+        view.addGestureRecognizer(hover)
     }
     
     @objc func showSettings() {
         print("Settings")
     }
+    
+    enum TrackpadDragGestureState {
+        case listening
+        case spacePressed
+        case dragging
+    }
+    var trackpadDragGestureState: TrackpadDragGestureState = .listening
 }
 
 extension CanvasViewController: UIScrollViewDelegate {
@@ -170,6 +180,58 @@ extension CanvasViewController {
         container.contentSize = boundingRect.size
     }
     
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        super.pressesBegan(presses, with: event)
+        
+        for press in presses {
+            if press.key?.keyCode == .keyboardSpacebar {
+                trackpadDragGestureState = .spacePressed
+            }
+        }
+    }
+    
+    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        super.pressesEnded(presses, with: event)
+        
+        for press in presses {
+            if press.key?.keyCode == .keyboardSpacebar {
+                trackpadDragGestureState = .listening
+            }
+        }
+    }
+    
+    override func pressesCancelled(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        super.pressesCancelled(presses, with: event)
+        
+        for press in presses {
+            if press.key?.keyCode == .keyboardSpacebar {
+                trackpadDragGestureState = .listening
+            }
+        }
+    }
+    
+    @objc
+    func hovering(_ recognizer: UIPanGestureRecognizer) {
+        switch recognizer.state {
+        case .began:
+            if trackpadDragGestureState == .spacePressed {
+                trackpadDragGestureState = .dragging
+            }
+        case .changed:
+            guard trackpadDragGestureState == .dragging else {
+                break
+            }
+            let translation = recognizer.translation(in: recognizer.view)
+            var offset = container.contentOffset
+            offset.x -= translation.x
+            offset.y -= translation.y
+            container.contentOffset = offset
+            recognizer.setTranslation(.zero, in: recognizer.view)
+        default:
+            break
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -182,4 +244,4 @@ extension CanvasViewController {
     }
 }
 
-// fjfjfjfjfjfjfjfjfjfjfjffj
+// fjfjfjfjfjfjfjfjfjfjfjffjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfj
