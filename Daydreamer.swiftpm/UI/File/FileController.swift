@@ -48,7 +48,6 @@ final class FileController {
                 self.fileDidLoad(data: response.data, response: response.response, error: nil)
             }
         } else {
-            print("Loaded from network.")
             // TODO: Always fetch, even if we can load from cache. This is being else'd out only to reduce excessive server load during development.
             let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
                 guard let self = self else {
@@ -125,6 +124,9 @@ extension FileController {
             }
         } catch let error {
             print("Failed to decode file: \(error)")
+            if data.count < 1024 * 1024 * 2 {
+                print(String(data: data, encoding: .utf8)!)
+            }
         }
     }
     
@@ -158,4 +160,4 @@ extension FileController {
     }
 }
 
-// fofjfjffjfjfjfjfjfjfjfjfjfj
+// fofjfjffjfjfjfjfjfjfjfjfjfjfjjfj

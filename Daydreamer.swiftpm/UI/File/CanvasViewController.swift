@@ -92,7 +92,8 @@ extension CanvasViewController {
                         view.backgroundColor = UIColor(figmaColor: solid.color)
                     case let image as FigmaKit.Paint.Image:
                         guard let imageFills = imageFills,
-                              let imageUrlPath = imageFills[image.imageRef],
+                              let imageRef = image.ref,
+                              let imageUrlPath = imageFills[imageRef],
                               let imageUrl = URL(string: imageUrlPath) else {
                             view.backgroundColor = .yellow
                             break
@@ -181,4 +182,4 @@ extension CanvasViewController {
     }
 }
 
-// fjfjfjfjjffjfjfjfjfjfjffjfjfjmvmvfjfjfjfjfjfjfjfjfjfj
+// fjfjfjfjfjfjfjfjfjfjfjffj
