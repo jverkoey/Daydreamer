@@ -2,4 +2,7 @@ struct Config {
     // Create a personal access token by opening Figma > Help and account > Account settings
     // and scrolling to Personal access tokens.
     static let figmaToken: String = "<fill me in>"
+
+    // Get a Google Fonts API key at https://developers.google.com/fonts/docs/developer_api#identifying_your_application_to_google
+    public static let googleFontsAPIKey = "<fill me in>"
 }

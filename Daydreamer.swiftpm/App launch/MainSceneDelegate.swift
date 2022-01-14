@@ -5,8 +5,15 @@ class MainSceneDelegate: NSObject, UIWindowSceneDelegate {
     var window: UIWindow?
     var fileController: FileController?
     
+    private let cache = URLCache(memoryCapacity: 1024 * 1024 * 200, diskCapacity: 1024 * 1024 * 500, directory: nil)
+    private let googleFonts: GoogleFonts
+    @MainActor override init() {
+        googleFonts = GoogleFonts(cache: cache)
+        googleFonts.loadFonts()
+        super.init()
+    }
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
         if let windowScene = scene as? UIWindowScene {
             window = UIWindow(windowScene: windowScene)
             
@@ -18,7 +25,7 @@ class MainSceneDelegate: NSObject, UIWindowSceneDelegate {
             window?.makeKeyAndVisible()
             
             if let figmaID = launcher.figmaID, !figmaID.isEmpty {
-                let fileController = FileController(figmaID: figmaID)
+                let fileController = FileController(figmaID: figmaID, cache: cache, googleFonts: googleFonts)
                 self.fileController = fileController
                 
                 showFile(animated: false)
@@ -54,7 +61,7 @@ extension MainSceneDelegate: LauncherViewControllerDelegate {
     
     func launcher(_ launcher: LauncherViewController, open figmaID: String) {
         UserDefaults.standard.set(figmaID, forKey: UserDefaultKey.figmaFileID.rawValue)
-        let fileController = FileController(figmaID: figmaID)
+        let fileController = FileController(figmaID: figmaID, cache: cache, googleFonts: googleFonts)
         self.fileController = fileController
         
         showFile(animated: true)

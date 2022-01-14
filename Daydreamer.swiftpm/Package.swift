@@ -29,11 +29,22 @@ let package = Package(
                 .landscapeRight,
                 .landscapeLeft,
                 .portraitUpsideDown(.when(deviceFamilies: [.pad]))
+            ],
+            capabilities: [
+                .appTransportSecurity(configuration: .init(
+                    exceptionDomains: [
+                        .init(
+                            domainName: "fonts.gstatic.com",
+                            includesSubdomains: true,
+                            exceptionAllowsInsecureHTTPLoads: true
+                        )
+                    ]
+                ))
             ]
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/jverkoey/FigmaKit", "0.0.36"..<"1.0.0")
+        .package(url: "https://github.com/jverkoey/FigmaKit", "0.0.38"..<"1.0.0")
     ],
     targets: [
         .executableTarget(

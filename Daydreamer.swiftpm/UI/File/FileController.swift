@@ -4,9 +4,14 @@ import UIKit
 
 final class FileController {
     private let figmaID: String
-    init(figmaID: String) {
+    private let cache: URLCache
+    private let googleFonts: GoogleFontRetriever
+    init(figmaID: String, cache: URLCache, googleFonts: GoogleFontRetriever) {
         self.figmaID = figmaID
-        self.canvasVC = CanvasViewController()
+        self.cache = cache
+        self.googleFonts = googleFonts
+        
+        self.canvasVC = CanvasViewController(googleFonts: googleFonts)
         self.navVC = UINavigationController(rootViewController: canvasVC)
         
         canvasVC.title = "Loading..."
@@ -27,7 +32,6 @@ final class FileController {
     private let navVC: UINavigationController
     
     // Loading the file
-    private let cache = URLCache(memoryCapacity: .max, diskCapacity: .max, directory: nil)
     func load() {
         loadFile()
         loadImageFills()
@@ -125,7 +129,7 @@ extension FileController {
             print("Failed to decode file: \(error)")
         }
         if data.count < 1024 * 1024 * 2 {
-            print(String(data: data, encoding: .utf8)!)
+//            print(String(data: data, encoding: .utf8)!)
         }
     }
     

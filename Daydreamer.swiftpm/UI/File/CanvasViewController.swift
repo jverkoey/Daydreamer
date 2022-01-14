@@ -13,7 +13,10 @@ final class CanvasViewController: UIViewController {
         }
     }
     
-    init() {
+    private let googleFonts: GoogleFontRetriever
+    init(googleFonts: GoogleFontRetriever) {
+        self.googleFonts = googleFonts
+        
         super.init(nibName: nil, bundle: nil)
         
         let gearImage = UIImage(systemName: "gear")
@@ -80,7 +83,11 @@ extension CanvasViewController {
             
             if let textNode = node as? FigmaKit.Node.Text {
                 let label = UILabel()
-                label.font = UIFont(name: textNode.style.fontFamily, size: textNode.style.fontSize)
+                label.isHidden = true
+                self.googleFonts.font(family: textNode.style.fontFamily, weight: textNode.style.fontWeight, italic: textNode.style.italic) { font in
+                    label.font = font.withSize(textNode.style.fontSize)
+                    label.isHidden = false
+                }
                 for fill in vector.fills {
                     switch fill {
                     case let solid as FigmaKit.Paint.Solid:
@@ -304,4 +311,4 @@ extension CanvasViewController {
     }
 }
 
-// fjfjfjfjfjfjfffjfjffjfjfj
+// fjfjfjfjfjfjfffjfjffjfjfjfj
