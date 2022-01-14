@@ -70,6 +70,12 @@ private let canvasMargins: CGFloat = 1000
 
 extension CanvasViewController {
     
+    private func configureFrame(forView view: UIView, vector: FigmaKit.Node.Vector) {
+        view.layer.bounds = CGRect(origin: .zero, size: CGSize(figmaSize: vector.size))
+        view.layer.anchorPoint = .zero
+        view.transform = CGAffineTransform(figmaTransform: vector.relativeTransform)
+    }
+    
     func viewForNode(_ node: FigmaKit.Node) -> UIView {
         let view: UIView
         switch node {
@@ -83,9 +89,11 @@ extension CanvasViewController {
             
             if let textNode = node as? FigmaKit.Node.Text {
                 let label = UILabel()
+                configureFrame(forView: label, vector: vector)
                 label.isHidden = true
                 self.googleFonts.font(family: textNode.style.fontFamily, weight: textNode.style.fontWeight, italic: textNode.style.italic) { font in
                     label.font = font.withSize(textNode.style.fontSize)
+                    // TODO: Implement letter spacing.
                     label.isHidden = false
                 }
                 for fill in vector.fills {
@@ -100,9 +108,11 @@ extension CanvasViewController {
                 view = label
             } else {
                 view = UIView()
+                configureFrame(forView: view, vector: vector)
                 if let frameNode = node as? FigmaKit.Node.Frame {
                     view.clipsToBounds = frameNode.clipsContent
                 }
+                
                 // TODO: Need to make a new layer for each fill and allow them to composite on top of one another.
                 for fill in vector.fills {
                     switch fill {
@@ -119,23 +129,27 @@ extension CanvasViewController {
                         let imageView = UIImageView(frame: view.bounds)
                         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                         view.addSubview(imageView)
-                        DispatchQueue.global().async {
-                            guard let data = try? Data(contentsOf: imageUrl),
+                        
+                        let task = URLSession.shared.dataTask(with: imageUrl) { (data, response, error) in
+                            if let error = error {
+                                print("Failed to load image: \(error)")
+                                return
+                            }
+                            guard let data = data,
                                   let image = UIImage(data: data) else {
-                                      return
-                                  }
+                                return
+                            }
                             DispatchQueue.main.async {
                                 imageView.image = image
                             }
                         }
+                        task.resume()
+                        
                     default:
                         print("Unhandled fill: \(fill)")
                     }
                 }
             }
-            view.layer.bounds = CGRect(origin: .zero, size: CGSize(figmaSize: vector.size))
-            view.layer.anchorPoint = .zero
-            view.transform = CGAffineTransform(figmaTransform: vector.relativeTransform)
             
             view.layer.borderColor = nil
             if type(of: vector) == FigmaKit.Node.Vector.self {
