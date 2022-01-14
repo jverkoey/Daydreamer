@@ -96,6 +96,7 @@ extension CanvasViewController {
                 if let frameNode = node as? FigmaKit.Node.Frame {
                     view.clipsToBounds = frameNode.clipsContent
                 }
+                // TODO: Need to make a new layer for each fill and allow them to composite on top of one another.
                 for fill in vector.fills {
                     switch fill {
                     case let solid as FigmaKit.Paint.Solid:
@@ -125,20 +126,66 @@ extension CanvasViewController {
                     }
                 }
             }
+            view.layer.bounds = CGRect(origin: .zero, size: CGSize(figmaSize: vector.size))
+            view.layer.anchorPoint = .zero
+            view.transform = CGAffineTransform(figmaTransform: vector.relativeTransform)
+            
             view.layer.borderColor = nil
-            for strokePaint in vector.strokes {
-                switch strokePaint {
-                case let solid as FigmaKit.Paint.Solid:
-                    view.layer.borderColor = UIColor(figmaColor: solid.color).cgColor
-                default:
-                    break
+            if type(of: vector) == FigmaKit.Node.Vector.self {
+                for geometry in vector.strokeGeometry {
+                    let bounds = geometry.bounds()!
+                    
+                    let shapeLayer = CAShapeLayer()
+                    for strokePaint in vector.strokes {
+                        switch strokePaint {
+                        case let solid as FigmaKit.Paint.Solid:
+                            shapeLayer.fillColor = UIColor(figmaColor: solid.color).cgColor
+                        default:
+                            break
+                        }
+                    }
+                    switch geometry.windingRule {
+                    case .evenOdd:
+                        shapeLayer.fillRule = .evenOdd
+                    case .nonZero:
+                        shapeLayer.fillRule = .nonZero
+                    case .none:
+                        break
+                    }
+                    
+                    let path = CGMutablePath()
+                    for command in geometry.commands(offsetBy: (x: -bounds.minX, y: -bounds.minY)) {
+                        switch command {
+                        case let .moveTo(x, y):
+                            path.move(to: CGPoint(x: x, y: y))
+                        case let .lineTo(x, y):
+                            path.addLine(to: CGPoint(x: x, y: y))
+                        case let .splineTo(x0, y0, x1, y1, x, y):
+                            path.addCurve(to: CGPoint(x: x, y: y),
+                                          control1: CGPoint(x: x0, y: y0),
+                                          control2: CGPoint(x: x1, y: y1))
+                        case .close:
+                            path.closeSubpath()
+                        }
+                    }
+                    shapeLayer.path = path
+                    shapeLayer.frame = view.bounds.offsetBy(dx: bounds.minX, dy: bounds.minY)
+                    view.layer.addSublayer(shapeLayer)
+                }
+            } else {
+                for strokePaint in vector.strokes {
+                    switch strokePaint {
+                    case let solid as FigmaKit.Paint.Solid:
+                        view.layer.borderColor = UIColor(figmaColor: solid.color).cgColor
+                    default:
+                        break
+                    }
+                }
+                if view.layer.borderColor != nil {
+                    view.layer.borderWidth = vector.strokeWeight
                 }
             }
-            if view.layer.borderColor != nil {
-                view.layer.borderWidth = vector.strokeWeight
-            }
-            view.bounds = CGRect(origin: .zero, size: CGSize(figmaSize: vector.size))
-            view.transform = CGAffineTransform(figmaTransform: vector.relativeTransform, size: vector.size)
+            
         default:
             fatalError("Unhandled")
         }
@@ -171,25 +218,26 @@ extension CanvasViewController {
         canvas.backgroundColor = container.backgroundColor
         
         for node in page.children {
-            let view = viewForNode(node)
-            view.transform = view.transform.translatedBy(x: canvasMargins, y: canvasMargins)
-            canvas.addSubview(view)
+            canvas.addSubview(viewForNode(node))
         }
-        guard var boundingRect = boundingRect else {
+        guard let boundingRect = boundingRect else {
             return
         }
-        self.boundingRect = boundingRect
-        boundingRect = boundingRect.insetBy(dx: -canvasMargins, dy: -canvasMargins)
         canvas.frame = CGRect(
-            origin: CGPoint(x: -canvasMargins, y: -canvasMargins),
+            origin: .zero,
             size: boundingRect.size
         )
         container.contentInset = UIEdgeInsets(
-            top: -boundingRect.minY,
-            left: -boundingRect.minX,
-            bottom: 0, right: 0
+            top: canvasMargins,
+            left: canvasMargins,
+            bottom: canvasMargins,
+            right: canvasMargins
         )
         container.contentSize = boundingRect.size
+        container.contentOffset = CGPoint(
+            x: boundingRect.midX - container.bounds.width / 2,
+            y: boundingRect.midY - container.bounds.height / 2
+        )
     }
     
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
@@ -256,4 +304,4 @@ extension CanvasViewController {
     }
 }
 
-// fjfjfjfjfjfjfjfjfjfjfjffjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjfjf
+// fjfjfjfjfjfjfffjfjffjfjfj

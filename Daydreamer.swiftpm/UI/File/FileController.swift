@@ -47,21 +47,20 @@ final class FileController {
             DispatchQueue.global(qos: .userInitiated).async {
                 self.fileDidLoad(data: response.data, response: response.response, error: nil)
             }
-        } else {
-            // TODO: Always fetch, even if we can load from cache. This is being else'd out only to reduce excessive server load during development.
-            let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-                guard let self = self else {
-                    return
-                }
-                if let response = response,
-                   let data = data {
-                    self.cache.storeCachedResponse(CachedURLResponse(response: response, data: data), for: request)
-                }
-                self.fileDidLoad(data: data, response: response, error: error)
-            }
-            self.fileTask = task
-            task.resume()
         }
+        // TODO: Always fetch, even if we can load from cache. This is being else'd out only to reduce excessive server load during development.
+        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self else {
+                return
+            }
+            if let response = response,
+               let data = data {
+                self.cache.storeCachedResponse(CachedURLResponse(response: response, data: data), for: request)
+            }
+            self.fileDidLoad(data: data, response: response, error: error)
+        }
+        self.fileTask = task
+        task.resume()
     }
     
     private var imageFillsTask: URLSessionDataTask?
@@ -124,9 +123,9 @@ extension FileController {
             }
         } catch let error {
             print("Failed to decode file: \(error)")
-            if data.count < 1024 * 1024 * 2 {
-                print(String(data: data, encoding: .utf8)!)
-            }
+        }
+        if data.count < 1024 * 1024 * 2 {
+            print(String(data: data, encoding: .utf8)!)
         }
     }
     
@@ -160,4 +159,4 @@ extension FileController {
     }
 }
 
-// fofjfjffjfjfjfjfjfjfjfjfjfjfjjfjfj
+// fofjfjffjfjfjfjfjfjfjfjfjfjfjjfjfjfjfjfj
