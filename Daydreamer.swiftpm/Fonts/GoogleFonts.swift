@@ -158,17 +158,29 @@ extension GoogleFonts: GoogleFontRetriever {
     
     @MainActor
     fileprivate func instantiateFont(forRequest request: FontRequest) {
-        var traits: [UIFontDescriptor.TraitKey: Any] = [
-            .weight: weightMap[request.weight] ?? .regular,
-        ]
-        if request.italic {
-            traits[.symbolic] = UIFontDescriptor.SymbolicTraits.traitItalic.rawValue
+        let font: UIFont
+        if systemFonts.contains(request.fontFamily) {
+            // We need to load system fonts via the system fonts APIs.
+            if request.italic {
+                font = .italicSystemFont(ofSize: 20)
+            } else if request.fontFamily == "SF Mono" {
+                font = .monospacedSystemFont(ofSize: 20, weight: weightMap[request.weight] ?? .regular)
+            } else {
+                font = .systemFont(ofSize: 20, weight: weightMap[request.weight] ?? .regular)
+            }
+        } else {
+            var traits: [UIFontDescriptor.TraitKey: Any] = [
+                .weight: weightMap[request.weight] ?? .regular,
+            ]
+            if request.italic {
+                traits[.symbolic] = UIFontDescriptor.SymbolicTraits.traitItalic.rawValue
+            }
+            let descriptor = UIFontDescriptor(fontAttributes: [
+                .family: request.fontFamily,
+                .traits: traits
+            ])
+            font = UIFont(descriptor: descriptor, size: 20)
         }
-        let descriptor = UIFontDescriptor(fontAttributes: [
-            .family: request.fontFamily,
-            .traits: traits
-        ])
-        let font = UIFont(descriptor: descriptor, size: 20)
         self.requestToFont[request] = font
         
         if let callbacks = self.requestQueue[request] {

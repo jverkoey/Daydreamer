@@ -93,7 +93,6 @@ extension CanvasViewController {
                 label.isHidden = true
                 self.googleFonts.font(family: textNode.style.fontFamily, weight: textNode.style.fontWeight, italic: textNode.style.italic) { font in
                     label.font = font.withSize(textNode.style.fontSize)
-                    // TODO: Implement letter spacing.
                     label.isHidden = false
                 }
                 for fill in vector.fills {
@@ -104,7 +103,7 @@ extension CanvasViewController {
                         fatalError("Unhandled")
                     }
                 }
-                label.text = textNode.characters
+                label.attributedText = NSAttributedString(string: textNode.characters, attributes: [.kern: textNode.style.letterSpacing])
                 view = label
             } else {
                 view = UIView()
