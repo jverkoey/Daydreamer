@@ -3,8 +3,10 @@ import UIKit
 
 final class FileViewController: UIViewController {
     var file: FigmaKit.File? {
-        get { return canvasViewController.file }
-        set { canvasViewController.file = newValue}
+        didSet {
+            canvasViewController.file = file
+            layersViewController.file = file
+        }
     }
     var imageFills: [String: String]? {
         get { return canvasViewController.imageFills }
