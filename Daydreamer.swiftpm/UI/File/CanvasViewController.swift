@@ -220,7 +220,6 @@ extension CanvasViewController {
         guard let file = file else {
             return
         }
-        title = file.name
         
         let page = file.document.children[0] as! FigmaKit.Node.Canvas
         

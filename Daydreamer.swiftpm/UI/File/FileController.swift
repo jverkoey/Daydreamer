@@ -11,10 +11,10 @@ final class FileController {
         self.cache = cache
         self.googleFonts = googleFonts
         
-        self.canvasVC = CanvasViewController(googleFonts: googleFonts)
-        self.navVC = UINavigationController(rootViewController: canvasVC)
+        self.fileVC = FileViewController(googleFonts: googleFonts)
+        self.navVC = UINavigationController(rootViewController: fileVC)
         
-        canvasVC.title = "Loading..."
+        fileVC.title = "Loading..."
         
         load()
     }
@@ -28,7 +28,7 @@ final class FileController {
     private var file: FigmaKit.File?
     
     // UI elements
-    private let canvasVC: CanvasViewController
+    private let fileVC: FileViewController
     private let navVC: UINavigationController
     
     // Loading the file
@@ -100,8 +100,8 @@ final class FileController {
     }
     
     var closeItem: UIBarButtonItem? {
-        get { return canvasVC.navigationItem.leftBarButtonItem }
-        set { canvasVC.navigationItem.leftBarButtonItem = newValue }
+        get { return fileVC.navigationItem.leftBarButtonItem }
+        set { fileVC.navigationItem.leftBarButtonItem = newValue }
     }
     var viewController: UIViewController {
         return navVC
@@ -122,14 +122,15 @@ extension FileController {
                 guard let self = self else {
                     return
                 }
-                self.canvasVC.file = file
+                self.fileVC.file = file
+                self.fileVC.title = file.name
                 self.file = file
             }
         } catch let error {
             print("Failed to decode file: \(error)")
         }
         if data.count < 1024 * 1024 * 2 {
-//            print(String(data: data, encoding: .utf8)!)
+            print(String(data: data, encoding: .utf8)!)
         }
     }
     
@@ -155,7 +156,7 @@ extension FileController {
                 guard let self = self else {
                     return
                 }
-                self.canvasVC.imageFills = fills.meta.images
+                self.fileVC.imageFills = fills.meta.images
             }
         } catch let error {
             print("Failed to decode image fills: \(error)")
@@ -163,4 +164,4 @@ extension FileController {
     }
 }
 
-// fofjfjffjfjfjfjfjfjfjfjfjfjfjjfjfjfjfjfj
+// fofjfjffjfjfjfjfjfjfjfjfjfjfjjfjfjfjfjfjfj
